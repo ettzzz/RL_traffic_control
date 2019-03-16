@@ -13,17 +13,16 @@ from itertools import combinations, permutations
 from scipy.interpolate import interp1d
 
 from global_var import WORKSPACE, DATASPACE, SIM_LENGTH
-
+from verify_single import test_agent
 
 ROUTES = list(permutations(['N','E','W','S'],2)) #A是有顺序的
 MAIN_ROUTES = list(permutations(['E','W'],2))
 SUB_ROUTES = list(set(ROUTES) - set(MAIN_ROUTES)) 
 #ROUTES = list(combinations(['N','E','W','S'],2)) #C是没有顺序的
-VEH_CLASS = {'car':1, 'bus':0}
 
 def generateDistribution(array_x, array_y, length = SIM_LENGTH):        
     f1 = interp1d(array_x, array_y, kind = 'quadratic')
-    print('The highest expected arrival rate is {} veh/s.'.format(str(array_y.max()/60)))
+#    print('The highest expected arrival rate is {} veh/s.'.format(str(round(array_y.max()/60,2))))
     xnew = np.linspace(array_x.min(),array_x.max(), int(length))
     ynew = f1(xnew)
     x_smooth = np.array(range(int(length)))
@@ -35,15 +34,13 @@ def plotDistribution(x_smooth, ynew, viz_name, distribution_dict):
     plt.plot(x_smooth, ynew)
     plt.xlabel('Time')
     plt.ylabel('Expected arrival rate per minute')
-    plt.legend(loc=4)
     plt.text(0, max(ynew)/10, str(distribution_dict))
     plt.savefig('{}/{}_input.png'.format(DATASPACE, viz_name))
 #    plt.show()
     
 
-
 class homemadeXML():
-    def __init__(self, episodes = SIM_LENGTH, interval, binomial, array_y, output_name, verbose = False):
+    def __init__(self, interval, binomial, array_y, output_name, episodes = SIM_LENGTH, verbose = False):
 #        self.episodes = episodes # it refers to the duration of simulation
         self.interval = interval # generally it's phase length
         self.binomial = binomial # generally it's a constant number
@@ -114,22 +111,69 @@ class homemadeXML():
         if self.verbose == True:
             print('Kochen fertig. Bitte sehen Sie das Folder an. Es gibt {} Verkehrs während die Simulation.'.format(str(self.veh_number)))
 
+    
+#test_results = [[30, 40, 50], [10, 15, 20], [15, 17, 22]]
+#test_scenarios = ['0%', '+25%', '+50%']
+
+    
+def push_agent(test_scenarios, path, RL):
+    def transfer(sce_str):
+        if sce_str[0] == '-':
+            return int(sce_str.replace('%',''))/100
+        else:
+            return int(sce_str.replace('%','').replace('+',''))/100
+        
+    input_figure_name = 'flow_test'
+    y = np.array([8, 10, 12, 13, 15, 15, 14, 13, 14, 16, 12, 7])
+    x = np.arange(len(y))
+    test_results = [[] for _ in range(len(test_scenarios))]
+    for each_sce in test_scenarios:
+        y_sce = y * (1 + transfer(each_sce))
+        
+        X, Y = generateDistribution(x, y_sce) 
+        flow = homemadeXML(60, 5, Y, input_figure_name, verbose = False)
+        flow.geniessen()
+        test_results[0].append(np.mean(test_agent('fixed', RL)))
+        test_results[1].append(np.mean(test_agent('rl', RL)))
+        test_results[2].append(np.mean(test_agent('actuated', RL)))
+    
+    X, Y = generateDistribution(x, y) 
+    reset = homemadeXML(60, 5, Y, input_figure_name, verbose = False)
+    reset.geniessen()
+    
+    index = np.arange(len(test_scenarios))  # the x locations for the groups
+    width = 0.1  # the width of the bars
+    
+    fig, ax = plt.subplots(figsize = (12,6),dpi = 120)
+    ax.bar(index - width, test_results[0], width, label='fixed')
+    ax.bar(index, test_results[1], width, color='red', label='RL agent')
+    ax.bar(index + width, test_results[2], width, color='orange', label='actuated')
+    
+    ax.set_ylabel('Avg. Waiting Time')
+    ax.set_title('Agent\'s performance under various flow inputs')
+    ax.set_xticks(index)
+    ax.set_xticklabels(test_scenarios)
+    ax.legend()
+    plt.savefig(path + 'scenarios_bar.png')
+    plt.close('all')
+    
 
 if __name__ == "__main__":
-    input_figure_name = 'test'
-#    y = np.array([2, 8, 15, 25, 30, 32, 13, 20, 23, 30, 25, 10]) # high value +100% # 360.9, 3303.5, 677.7 crashed
+    input_figure_name = 'flow_test'
     y = np.array([8, 10, 12, 13, 15, 15, 14, 13, 14, 16, 12, 7]) # low value 151.6, 68.1, 95.6
+#    y = np.array([2, 8, 15, 25, 30, 32, 13, 20, 23, 30, 25, 10]) # high value +100% # 360.9, 3303.5, 677.7 crashed
 #    y = np.array([12, 14, 16, 16, 18, 19, 17, 16, 18, 19, 18, 11]) #+25% 218.8, 138.6, 162.1
 #    y = y*1.5 # +50% 241.0, 223.8, 259.7
-    
 #    y = np.array([6, 7, 9, 10, 12, 11, 12, 9, 10, 12, 8, 5]) # - 25% 117.9, 50.8, 57.0
 #    y = np.array([14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]) # 159.4, 71.3, 93.2
-    x = np.arange(len(y))
     
+    x = np.arange(len(y))
     X, Y = generateDistribution(x, y) 
     flow = homemadeXML(60, 5, Y, input_figure_name, verbose = True)
     flow.geniessen()
     plotDistribution(X, Y, input_figure_name, flow.flow_distribution)
+
+
 
 
 

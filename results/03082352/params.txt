@@ -1,0 +1,8 @@
+Simulation configurations
+Script path: /Users/eriti/Desktop/vgit/RL_traffic_control/codes/single/run.py
+RL iterations: 200
+RL params:                   
+	Learning rate: 0.001                  
+	Reward decay: 0.9                  
+	epsilon max: 0.95                  
+	epsilon increment: None

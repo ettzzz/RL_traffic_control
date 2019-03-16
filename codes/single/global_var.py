@@ -5,7 +5,7 @@ import time
 
 SIM_ITERATIONS = 200
 SIM_LENGTH = 7200
-VERIFY_INTERVAL = 10
+VERIFY_INTERVAL = 60
 GEN_ROUTE = False
 current_time = time.strftime('%m%d%H%M',time.localtime(time.time()))
 

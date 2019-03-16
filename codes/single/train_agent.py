@@ -6,7 +6,7 @@ from global_var import WORKSPACE, VERIFY_INTERVAL, SIM_ITERATIONS, current_time
 from traci_env_single import myTraci
 
 
-def generatePath(time_tag):
+def generate_path(time_tag):
     rst_path = '{}/results/'.format(WORKSPACE)
     sim_path = rst_path + time_tag + '/'
     
@@ -25,7 +25,7 @@ def generatePath(time_tag):
     return rst_path, sim_path
 
 
-def stamp(RL_params, rst_path, sim_path, clean = False):
+def write_log(RL_params, rst_path, sim_path, clean = False):
     
     with open ('{}/params.txt'.format(sim_path),'w') as log:
         log.write('Simulation configurations' + '\n')

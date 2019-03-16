@@ -53,16 +53,15 @@ def test_agent(sim_type, RL):
     return env.waitingtime
 
 
-#if __name__ == '__main__':
-#    from RL_brain import QLearningTable
-#    from RL_global_var import green_states
-#    
-#    trained_path = '/Users/eriti/Desktop/netedit/single/results/02162222/'
-##    trained_path = '/Users/eriti/Desktop/frompps/02160331/'
-#    qtable_path = trained_path + 'qtable.csv'
-#    RL = QLearningTable(list(range(len(green_states))))
-#    RL.feed_qtable(qtable_path)
-#    RL.epsilon = 1
-#    fixed,rl,actuated = test_agent('fixed', RL), test_agent('rl', RL), test_agent('actuated', RL)
-#    test_plot(rl, fixed, actuated, trained_path)
+if __name__ == '__main__':
+    from RL_brain import QLearningTable
+    from global_var import green_states
+    
+    trained_path = '/Users/eriti/Desktop/vgit/RL_traffic_control/results/03151635/'
+    qtable_path = trained_path + 'qtable.csv'
+    RL = QLearningTable(list(range(len(green_states))))
+    RL.feed_qtable(qtable_path)
+    RL.epsilon = 1
+    fixed,rl,actuated = test_agent('fixed', RL), test_agent('rl', RL), test_agent('actuated', RL)
+    test_plot(rl, fixed, actuated, trained_path)
 

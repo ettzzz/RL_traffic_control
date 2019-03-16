@@ -20,7 +20,7 @@ class myTraci():
         self.conn.start(sumo_cmd)
         self.episodes = EPISODES
         self.intersection = AGENT
-        self.tl_params = {'minGrT': 10, 'maxGrT': 40, 'trans':4, 'prolongGrT': 10, 
+        self.tl_params = {'minGrT': 10, 'maxGrT': 40, 'trans':4, 'prolongGrT': 5, 
                         'cycle': 96, 'cycle_test':96,
                         'stGrT':25, 'stGrT_test':25,
                         'lfGrT':15,'lfGrT_test':15,}
@@ -90,12 +90,14 @@ class myTraci():
         que1, que2 = spd[lane1][:self.veh_green], spd[lane2][:self.veh_green]
         spd1, spd2 = spd[lane1][self.veh_green:self.max_green], spd[lane2][self.veh_green:self.max_green]
         que1n, que2n = np.count_nonzero(que1), np.count_nonzero(que2)
-        spd1n = 1 if np.count_nonzero(spd1) == 0 else np.count_nonzero(spd1)
-        spd2n = 1 if np.count_nonzero(spd2) == 0 else np.count_nonzero(spd2)
+        spd1n = np.count_nonzero(spd1) if np.count_nonzero(spd1) != 0 else 1
+        spd2n = np.count_nonzero(spd2) if np.count_nonzero(spd2) != 0 else 1
 
-        idx_que = 0 if que1n <= self.veh_green - 2 and que2n <= self.veh_green - 2 else 1
-#        idx_que = 0 if que1n == 0 and que2n == 0 else 1
+#        idx_que = 0 if que1n <= self.veh_green - 2 and que2n <= self.veh_green - 2 else 1 # Not sensitive to simulation
+        idx_que = 0 if que1n == 0 and que2n == 0 else 1
         idx_spd = 0 if np.sum(spd1)/spd1n >= 8.3 and np.sum(spd2)/spd2n >= 8.3 else 1
+#        if np.count_nonzero(spd1) !=0 or np.count_nonzero(spd2) != 0:
+#            print(round(np.sum(spd1)/spd1n,2),  np.count_nonzero(spd1), round(np.sum(spd2)/spd2n,2),  np.count_nonzero(spd2))
         idx_bin = str(idx_que) + str(idx_spd) + '{:04b}'.format(self.cache_vars['n_prolong'])
 #        print(idx_bin)        
         idx_dec = int(idx_bin, 2)
@@ -142,7 +144,7 @@ class myTraci():
                     cache_matrix[each_lane][grid_pos] = each_wt if each_wt != 0 else 0.0001
                 elif category == 'speed':
                     each_speed = self.conn.vehicle.getSpeed(each_veh)
-                    cache_matrix[each_lane][grid_pos] = round(each_speed,2) if each_speed <= 13.9 else 13.9
+                    cache_matrix[each_lane][grid_pos] = round(each_speed,2)+0.01 if each_speed <= 13.9 else 13.9
                 else:
                     print('Bug from getLaneMatrix(): Wrong category keyword')
                     break
@@ -218,39 +220,33 @@ class myTraci():
 #        plt.show()
 #        print(y)
 
-   
+#
 
+if __name__ == "__main__":
             
+    from RL_brain import QLearningTable
+    from global_var import trainCmd
     
-    
-#
-#from RL_brain import QLearningTable
-#tempCmd = ["{}/bin/sumo-gui".format(os.environ['SUMO_HOME']), "-c", "{}/temp.sumocfg".format(WORK_SPACE)]
-#
-#RL = QLearningTable(list(range(len(tl_states))))
-#env = myTraci(EPISODES = 7200, sumo_cmd = tempCmd) # need modification when using in multiple scenario
-#env.warmUp()
-#step = env.conn.simulation.getTime()
-##
-##while step < env.episodes:
-#while step < 3200:
-#    env.getUtility(step) # right after warmup
-#    if env.isCheckpoint():
-#        r = env.getReward()
-#        o, s = env.getCurrentOccasion()
-#        a = RL.choose_action(s, o) # get action
-#        
-#        env.prolongTL(a)
-#        
-##        print(o,s,a,r)
-##        RL.write_memory_record(o, s, a, r)
-##        break
-#    else:
-#        pass
-#    step += 1
-#    env.conn.simulationStep()
-##    
-#env.conn.close()
-#sys.stdout.flush()
+    RL = QLearningTable(list(range(len(green_states))))
+    env = myTraci(EPISODES = 7200, sumo_cmd = trainCmd) # need modification when using in multiple scenario
+    env.warmUp()
+    step = env.conn.simulation.getTime()
+    #
+    #while step < env.episodes:
+    while step < 7200:
+        env.getUtility(step) # right after warmup
+        if env.isCheckpoint():
+            r = env.getReward()
+            o, s = env.getCurrentOccasion()
+            a = RL.choose_action(s, o) # get action
+            env.prolongTL(a)
+            
+        else:
+            pass
+        step += 1
+        env.conn.simulationStep()
+    #    
+    env.conn.close()
+    sys.stdout.flush()
 
 

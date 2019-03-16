@@ -57,7 +57,6 @@ class QLearningTable:
         return int(action)
 
 
-    
     def learn(self):
         learn_list = np.random.randint(0, self.batch_size, self.learn_size)
         for i in learn_list:
