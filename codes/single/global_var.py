@@ -3,9 +3,9 @@ import re
 import pandas as pd
 import time
 
-SIM_ITERATIONS = 200
+SIM_ITERATIONS = 400
 SIM_LENGTH = 7200
-VERIFY_INTERVAL = 60
+VERIFY_INTERVAL = 30
 GEN_ROUTE = False
 current_time = time.strftime('%m%d%H%M',time.localtime(time.time()))
 
