@@ -17,7 +17,8 @@ def get_last_number():
     results_list = os.listdir(rst_path)
     return results_list[-1]
 
-if __name__ == '__main__':
+
+def main():
     # trained_number = '02180840'
     trained_number = get_last_number()
     RL = QLearningTable(list(range(len(green_states))))
@@ -26,5 +27,8 @@ if __name__ == '__main__':
     RL.feed_qtable(qtable_path)
     fixed,rl,actuated = test_agent('fixed', RL), test_agent('rl', RL), test_agent('actuated', RL)
     test_plot(rl, fixed, actuated, trained_path)
+
+if __name__ == '__main__':
+    main()
     
 

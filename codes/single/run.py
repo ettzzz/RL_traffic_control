@@ -11,8 +11,8 @@ from global_var import green_states, current_time, WORKSPACE
 from verify_single import test_agent, test_plot
 from flow_input_single import push_agent
 
-if __name__ == '__main__':
 
+def main():
     # --------------preparation--------------------
     rst_path, sim_path = generate_path(current_time)
     RL = QLearningTable(list(range(len(green_states))))
@@ -35,3 +35,5 @@ if __name__ == '__main__':
     # ----------------------------------
     print('\nALL DONE, check {}'.format(str(current_time)))
 
+if __name__ == '__main__':
+    main()
