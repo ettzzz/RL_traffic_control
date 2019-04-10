@@ -1,0 +1,8 @@
+Simulation configurations
+Script path: /root/RL_traffic_control/codes/single/run.py
+RL iterations: 400
+RL params:                   
+	Learning rate: 0.001                  
+	Reward decay: 0                  
+	epsilon max: 0.95                  
+	epsilon increment: None
