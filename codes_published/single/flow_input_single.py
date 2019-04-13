@@ -142,7 +142,7 @@ def pushAgent(test_scenarios, path, RL):
     fig, ax = plt.subplots(figsize = (12,6),dpi = 400)
     ax.bar(index - width, test_results[0], width, color = '#006ED4', label='Fixed')
     ax.bar(index, test_results[1], width, color = '#FF341F', label='RL agent')
-    ax.bar(index + width, test_results[2], width, color = '#30AA52', label='Actuated')
+    ax.bar(index + width, test_results[2], width, color = '#30AA52', label='Adaptive')
     
     ax.set_ylabel('Avg. Waiting Time')
     ax.set_xticks(index)
